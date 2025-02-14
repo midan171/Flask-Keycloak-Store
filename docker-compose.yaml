@@ -15,14 +15,15 @@ services:
      - .env
     volumes:
       - ./:/app
+      - ./model:/app/model
+      - ./split:/app/split
       - ./static:/app/static
       - ./templates:/app/templates
-      - ./split:/app/split
     environment:
       FLASK_ENV: development
       FLASK_APP: ./split/marsh_app.py
       DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres
-      FLASK_DEBUG: 1
+      PYTHONPATH: /app
     ports:
      - 5000:5000
     restart: always

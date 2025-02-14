@@ -1,51 +1,43 @@
 from flask import Flask, jsonify, render_template, request
-from flask_sqlalchemy import SQLAlchemy 
-from flask_marshmallow import Marshmallow
+from flask_cors import CORS
 import os
-from flask_cors import CORS  # Add CORS support
+from model.item import ItemModel
+from model.store import StoreModel
+from split.extensions import db, ma
 
 app = Flask(__name__,
-    static_folder='../static',     # Point to static folder
-    template_folder='../templates' # Point to templates folder
+    static_folder='../static',     
+    template_folder='../templates' 
 )
-CORS(app)  # Enable CORS
+CORS(app)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///database.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-db = SQLAlchemy(app)
-ma = Marshmallow(app)
 
+# Initialize extensions with app
+db.init_app(app)
+ma.init_app(app)
 
-class Marsh(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50))
-    rewards = db.relationship("Reward", backref="reward_marsh")
-
-class Reward(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    reward_name = db.Column(db.String(50))
-    marsh_id = db.Column(db.Integer, db.ForeignKey("marsh.id"))
-    
-
-class RewardSchema(ma.SQLAlchemyAutoSchema):
+class ItemSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        model = Reward
+        model = ItemModel
         load_instance = True
 
-class MarshSchema(ma.SQLAlchemyAutoSchema):
-    rewards = ma.Nested(RewardSchema,many=True)
+class StoreSchema(ma.SQLAlchemyAutoSchema):
+    items = ma.Nested(ItemSchema, many=True)
     class Meta:
-        model = Marsh
+        model = StoreModel
         load_instance = True
         
-
 # Add this new function to check if database is empty
 def is_database_empty():
-    return Marsh.query.count() == 0
+    return StoreModel.query.count() == 0
 
 @app.before_first_request
 def create_tables():
-    db.create_all()  # Only create tables if they don't exist
+    with app.app_context():
+        db.drop_all()  # Drop all existing tables
+        db.create_all()  # Create new tables with updated schema
 
 @app.route('/')
 def index():
@@ -54,65 +46,65 @@ def index():
 # Modify init route to only add data if database is empty
 @app.route("/api/init")
 def init_data():
-    if not is_database_empty():
-        return jsonify({"msg": "Database already initialized"})
+    # if not is_database_empty():
+    #     return jsonify({"msg": "Database already initialized"})
     
     # Create stores
     stores = [
-        Marsh(name="Electronics Store"),
-        Marsh(name="Book Store"),
-        Marsh(name="Sports Store"),
-        Marsh(name="Fashion Store")
+        StoreModel(name="Electronics Store"),
+        StoreModel(name="Book Store"), 
+        StoreModel(name="Sports Store"),
+        StoreModel(name="Fashion Store")
     ]
     for store in stores:
         db.session.add(store)
     db.session.commit()
 
-    # Create rewards/items for each store
-    rewards = [
-        Reward(reward_name="Laptop", reward_marsh=stores[0]),
-        Reward(reward_name="Smartphone", reward_marsh=stores[0]),
-        Reward(reward_name="Novel", reward_marsh=stores[1]),
-        Reward(reward_name="Comic Book", reward_marsh=stores[1]),
-        Reward(reward_name="Football", reward_marsh=stores[2]),
-        Reward(reward_name="Tennis Racket", reward_marsh=stores[2]),
-        Reward(reward_name="T-Shirt", reward_marsh=stores[3]),
-        Reward(reward_name="Jeans", reward_marsh=stores[3])
+    # Create items for each store
+    items = [
+        ItemModel(name="Laptop", price=999.99, store_id=stores[0].id),
+        ItemModel(name="Smartphone", price=599.99, store_id=stores[0].id),
+        ItemModel(name="Novel", price=14.99, store_id=stores[1].id),
+        ItemModel(name="Comic Book", price=9.99, store_id=stores[1].id),
+        ItemModel(name="Football", price=29.99, store_id=stores[2].id),
+        ItemModel(name="Tennis Racket", price=89.99, store_id=stores[2].id),
+        ItemModel(name="T-Shirt", price=19.99, store_id=stores[3].id),
+        ItemModel(name="Jeans", price=49.99, store_id=stores[3].id)
     ]
-    for reward in rewards:
-        db.session.add(reward)
+    for item in items:
+        db.session.add(item)
     db.session.commit()
     
     return jsonify({"msg": "Dummy data added to database"})
 
 @app.route("/api/check")
 def check_data():
-    users = Marsh.query.first()
-    marsh_schema = MarshSchema()
-    output = marsh_schema.dump(users)
-    return jsonify({"user": output})
+    store = StoreModel.query.first()
+    store_schema = StoreSchema()
+    output = store_schema.dump(store)
+    return jsonify({"store": output})
 
-@app.route("/api/user")
-def get_user():
-    users = Marsh.query.first()
-    marsh_schema = MarshSchema()
-    output = marsh_schema.dump(users)
-    data = marsh_schema.load(output)
-    return jsonify({"user": output})
+@app.route("/api/store")
+def get_store():
+    store = StoreModel.query.first()
+    store_schema = StoreSchema()
+    output = store_schema.dump(store)
+    data = store_schema.load(output)
+    return jsonify({"store": output})
 
-@app.route("/api/rewards")
-def get_rewards():
-    rewards = Reward.query.all()
-    schema = RewardSchema(many=True)
-    output = schema.dump(rewards)
-    return jsonify({"rewards": output})
+@app.route("/api/items")
+def get_items():
+    items = ItemModel.query.all()
+    schema = ItemSchema(many=True)
+    output = schema.dump(items)
+    return jsonify({"items": output})
 
-@app.route("/api/users")
-def get_all_users():
-    users = Marsh.query.all()
-    marsh_schema = MarshSchema(many=True)
-    output = marsh_schema.dump(users)
-    return jsonify({"users": output})
+@app.route("/api/stores")
+def get_all_stores():
+    stores = StoreModel.query.all()
+    store_schema = StoreSchema(many=True)
+    output = store_schema.dump(stores)
+    return jsonify({"stores": output})
 
 @app.route('/stores')
 def stores_page():
