@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stores</title>
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/stores">Stores</a></li>
+            <li><a href="/items">Items</a></li>
+        </ul>
+    </nav>
+    <main>
+        <h1>Our Stores</h1>
+        <div id="stores-container" class="grid-container"></div>
+    </main>
+    <script src="{{ url_for('static', filename='js/stores.js') }}"></script>
+</body>
+</html> 

@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   db:
     image: postgres:latest
@@ -16,10 +17,12 @@ services:
       - ./:/app
       - ./static:/app/static
       - ./templates:/app/templates
+      - ./split:/app/split
     environment:
       FLASK_ENV: development
-      FLASK_APP: ./split/app.py
+      FLASK_APP: ./split/marsh_app.py
       DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres
+      FLASK_DEBUG: 1
     ports:
      - 5000:5000
     restart: always

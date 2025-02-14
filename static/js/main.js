@@ -12,11 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('storesBtn').addEventListener('click', (e) => {
         e.preventDefault();
-        console.log('Stores clicked');
+        window.location.href = '/stores';
     });
 
     document.getElementById('itemsBtn').addEventListener('click', (e) => {
         e.preventDefault();
-        console.log('Items clicked');
+        window.location.href = '/items';
     });
 }); 

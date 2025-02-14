@@ -4,23 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Store</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div id="app">
-        <header>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="#" id="loginBtn">Login</a></li>
+                <li><a href="#" id="registerBtn">Register</a></li>
+                <li><a href="/stores" id="storesBtn">Stores</a></li>
+                <li><a href="/items" id="itemsBtn">Items</a></li>
+            </ul>
+        </nav>
+        <main>
             <h1>Welcome to Your Store</h1>
-            <nav>
-                <ul>
-                    <li><a href="#" id="loginBtn">Login</a></li>
-                    <li><a href="#" id="registerBtn">Register</a></li>
-                    <li><a href="#" id="storesBtn">Stores</a></li>
-                    <li><a href="#" id="itemsBtn">Items</a></li>
-                </ul>
-            </nav>
-        </header>
-        <main id="content">
-            <!-- Content will be loaded here dynamically -->
+            <div id="content">
+                <a href="/api/init" class="button">Initialize Demo Data</a>
+            </div>
         </main>
     </div>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>

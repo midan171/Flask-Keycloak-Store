@@ -38,3 +38,4 @@ stripe==2.53.0
 urllib3==1.25.10
 Werkzeug==0.16.1
 psycopg2-binary
+flask-cors
