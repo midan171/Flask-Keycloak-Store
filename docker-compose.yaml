@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   db:
     image: postgres:latest
@@ -6,7 +5,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - ./db_volume:/var/lib/db
+      - data-volume:/var/lib/postgresql/data
   app:
     build:
       context: .
@@ -15,9 +14,12 @@ services:
      - .env
     volumes:
       - ./:/app
+      - ./static:/app/static
+      - ./templates:/app/templates
     environment:
       FLASK_ENV: development
-      FLASK_APP: ./app.py
+      FLASK_APP: ./split/app.py
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/postgres
     ports:
      - 5000:5000
     restart: always

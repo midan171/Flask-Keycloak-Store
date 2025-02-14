@@ -1,4 +1,4 @@
-from flask import Flask,jsonify,request
+from flask import Flask,jsonify,request, render_template
 from flask_restful import Resource,Api,reqparse
 from flask_jwt_extended import JWTManager
 from flask_uploads import configure_uploads,patch_request_class
@@ -116,6 +116,10 @@ def revoked_token():
     }),401
 
 
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 api.add_resource(Item,"/item")
 api.add_resource(ItemList,"/itemsall")

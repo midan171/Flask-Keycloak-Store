@@ -1,9 +1,10 @@
-from flask import Flask,jsonify
+from flask import Flask,jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy 
 from flask_marshmallow import Marshmallow
+import os
 
 app =Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 db=SQLAlchemy(app)
 ma = Marshmallow(app)
 
@@ -38,7 +39,11 @@ def create_tables():
     db.create_all()
 
 
-@app.route("/")
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route("/init")
 def home():
     one = Marsh(name="one")
     two = Marsh(name="two")
